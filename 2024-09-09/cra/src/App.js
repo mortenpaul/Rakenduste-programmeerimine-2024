@@ -5,6 +5,7 @@ import Counter from "./components/Counter"
 import PropDrilling from "./components/PropDrilling"
 import Show from "./components/Show"
 import Context from "./components/Context"
+import Me from './components/Me';
 
 function App() {
   const [show, setShow] = useState(true)
@@ -13,15 +14,7 @@ function App() {
 
   return (
     <>
-      <Context />
-      <Show
-        show={show}
-        toggleShow={toggleShow}
-      />
-      <PropDrilling />
-      <Counter />
-      <Name title="Morten" />
-      <Name />
+      <Me name="Morten" />
     </>
   )
 }
