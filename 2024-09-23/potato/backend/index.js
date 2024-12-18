@@ -1,21 +1,20 @@
 const express = require('express')
+const cors = require("cors")
 const app = express()
 const port = 8080
 
+app.use(cors());
+
+const catsRoutes = require("./routes/cats.routes")
+const exampleRoutes = require("./routes/example.routes")
+
+app.use(express.json())
+
+app.use("/cats", catsRoutes)
+app.use("/examples", exampleRoutes)
+
 app.get('/', (req, res) => {
   res.send('Hello World!')
-})
-
-app.get('/0x0', (req, res) => {
-  res.send('0x0ss')
-})
-
-app.get('/users/:userId/books/:bookId', (req, res) => {
-  res.send(req.params)
-})
-
-app.get('/posts/:postID', (req, res) => {
-  res.send(req.params)
 })
 
 app.listen(port, () => {
