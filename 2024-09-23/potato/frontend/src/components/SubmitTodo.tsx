@@ -1,28 +1,30 @@
 import { Box, Button, Stack, TextField } from "@mui/material";
 import React, { useState } from "react";
 
-type SubmitCatProps = {
-  fetchCats: () => void;
+type SubmitTodoProps = {
+  fetchTodo: () => void;
 };
 
-const SubmitCat = ({ fetchCats }: SubmitCatProps) => {
-  const [name, setName] = useState("");
+const SubmitTodo = ({ fetchTodo }: SubmitTodoProps) => {
+  const [title, setTitle] = useState("");
 
-  const submitCat = async () => {
+  const submitTodo = async () => {
     try {
-      const response = await fetch("http://localhost:8080/cats", {
+      const response = await fetch("http://localhost:8080/todo", {  
         method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name: name }),
+        body: JSON.stringify({ title: title }),
       });
 
       if (response.ok) {
         console.log("Success", response);
+        // Snackbar success
       } else {
         console.warn("No success");
+        // Snackbar
       }
     } catch (error) {
       console.warn(error);
@@ -32,8 +34,8 @@ const SubmitCat = ({ fetchCats }: SubmitCatProps) => {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    submitCat();
-    setTimeout(fetchCats, 100);
+    submitTodo();
+    setTimeout(fetchTodo, 100);
   };
 
   return (
@@ -43,8 +45,8 @@ const SubmitCat = ({ fetchCats }: SubmitCatProps) => {
       <form onSubmit={handleSubmit}>
         <Stack>
           <TextField
-            label="Cat name"
-            onChange={(event) => setName(event.target.value)}
+            label="Todo title"
+            onChange={(event) => setTitle(event.target.value)}
           />
           <Button type="submit">Add</Button>
         </Stack>
@@ -53,4 +55,4 @@ const SubmitCat = ({ fetchCats }: SubmitCatProps) => {
   );
 };
 
-export default SubmitCat;
+export default SubmitTodo;
