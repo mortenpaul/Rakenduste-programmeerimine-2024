@@ -1,78 +1,120 @@
-const todo = [
-    {
-      id: "7d613b93-fa3e-4ef3-a9d2-e09e5ca6e4e6",
-      title: "Homework",
-      priority:2,
-      finished: true,
-      createdAt: 1729762532509,
-      updatedAt: null,
-      deleted: false,
-    },
-    {
-      id: "2dc9ce08-d345-4fed-8560-4c6b66fb0836",
-      title: "Workout",
-      priority:3,
-      finished: false,
-      createdAt: 1729762532509,
-      updatedAt: null,
-      deleted: true,
-    },
-  ];
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
+const { check, validationResult } = require("express-validator");
 
-exports.create = (req, res) => {
-    const {title} = req.body;
+const todos = [
+  {
+    id: crypto.randomUUID(),
+    title: "Test",
+    priority: 1,
+    createdAt: Date.now(),
+    updatedAt: null,
+    deleted: false,
+  },
+];
 
-    const newTodo = {
-        id: crypto.randomUUID(),
-        title: title,
-        priority: 1,
-        finished: false,
-        createdAt: Date.now(),
-        updatedAt: null,
-        deleted:false,
+exports.create = [
+  check("title").notEmpty().withMessage("Title is required"),
+  check("priority")
+    .isInt({ min: 1, max: 5 })
+    .withMessage("Priority must be a number between 1 and 5"),
+
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
 
-    todo.push(newTodo);
+    const { title, priority } = req.body;
 
+    const newTodo = {
+      id: crypto.randomUUID(),
+      title: title,
+      priority: priority || 1,
+      createdAt: Date.now(),
+      updatedAt: null,
+      deleted: false,
+    };
+
+    todos.push(newTodo);
     res.send(newTodo);
-};
+  },
+];
 
 exports.read = (req, res) => {
-
-  const activeTodos = todo.filter(item => !item.deleted);
+  const activeTodos = todos.filter((todo) => !todo.deleted);
   res.send(activeTodos);
 };
 
-exports.update = (req, res) => {
-  const { id } = req.params; 
-  const { title, priority, finished } = req.body; 
+exports.update = [
+  check("id").notEmpty().withMessage("ID is required"),
+  check("title").optional().notEmpty().withMessage("Title is required"),
+  check("priority")
+    .optional()
+    .isInt({ min: 1, max: 5 })
+    .withMessage("Priority must be a number between 1 and 5"),
 
-  const todoItem = todo.find(item => item.id === id);
+  (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
 
-  if (todoItem && !todoItem.deleted) {
- 
-      if (title) todoItem.title = title;
-      if (priority !== undefined) todoItem.priority = priority;
-      if (finished !== undefined) todoItem.finished = finished;
-      todoItem.updatedAt = Date.now();
+    const { id, title, priority } = req.body;
 
-      return res.send(todoItem);
-  } else {
-      return res.send({ message: "Todo not found or deleted" });
+    const todo = todos.find((todo) => todo.id === id && !todo.deleted);
+    if (!todo) {
+      return res.status(404).send({ message: "Todo not found" });
+    }
+
+    todo.title = title || todo.title;
+    todo.priority = priority || todo.priority;
+    todo.updatedAt = Date.now();
+
+    res.send(todo);
+  },
+];
+
+exports.delete = [
+  check("id").notEmpty().withMessage("ID is required"),
+
+  (req, res) => {
+    const { id } = req.body;
+    const todo = todos.find((todo) => todo.id === id);
+
+    if (!todo) {
+      return res.status(404).send({ message: "Todo not found" });
+    }
+
+    todo.deleted = true;
+    todo.updatedAt = Date.now();
+
+    res.send({ message: "Todo deleted successfully" });
+  },
+];
+
+const privateKey = "salasona";
+
+exports.getToken = (req, res) => {
+  const { name } = req.body;
+  if (!name) {
+    return res.status(400).json({ message: "Nimi on kohustuslik" });
   }
+
+  const token = jwt.sign({ name }, privateKey, { expiresIn: "1h" });
+  res.json({ token });
 };
 
-exports.delete = (req, res) => {
-  const { id } = req.params; 
-
-  const todoItem = todo.find(item => item.id === id);
-
-  if (todoItem) {
-     
-      todoItem.deleted = true;
-
-      return res.send({ message: "Todo marked as deleted", todoItem });
-  } else {
-      return res.send({ message: "Todo not found" });
+exports.verifyToken = (req, res) => {
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ message: "Token on kohustuslik" });
   }
+
+  jwt.verify(token, privateKey, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: "Token on kehtetu või aegunud" });
+    }
+    res.json({ message: "Token on korrektne", decoded });
+  });
 };

@@ -14,5 +14,8 @@
   "devDependencies": {
     "concurrently": "^9.1.0"
   },
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "express-jwt": "^8.5.1"
+  }
 }
