@@ -1,11 +1,9 @@
 const crypto = require("crypto");
-const jwt = require("jsonwebtoken");
-const { check, validationResult } = require("express-validator");
 
 const todos = [
   {
     id: crypto.randomUUID(),
-    title: "Test",
+    title: "Sample Todo",
     priority: 1,
     createdAt: Date.now(),
     updatedAt: null,
@@ -13,108 +11,58 @@ const todos = [
   },
 ];
 
-exports.create = [
-  check("title").notEmpty().withMessage("Title is required"),
-  check("priority")
-    .isInt({ min: 1, max: 5 })
-    .withMessage("Priority must be a number between 1 and 5"),
+exports.create = (req, res) => {
+  const { title, priority } = req.body;
 
-  (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
+  if (!title || title === "") {
+    return res
+      .status(418)
+      .send({ type: "Error", message: "Must include a title" });
+  }
 
-    const { title, priority } = req.body;
+  const newTodo = {
+    id: crypto.randomUUID(),
+    title: title,
+    priority: priority || 1,
+    createdAt: Date.now(),
+    updatedAt: null,
+    deleted: false,
+  };
 
-    const newTodo = {
-      id: crypto.randomUUID(),
-      title: title,
-      priority: priority || 1,
-      createdAt: Date.now(),
-      updatedAt: null,
-      deleted: false,
-    };
-
-    todos.push(newTodo);
-    res.send(newTodo);
-  },
-];
+  todos.push(newTodo);
+  res.send(newTodo);
+};
 
 exports.read = (req, res) => {
   const activeTodos = todos.filter((todo) => !todo.deleted);
   res.send(activeTodos);
 };
 
-exports.update = [
-  check("id").notEmpty().withMessage("ID is required"),
-  check("title").optional().notEmpty().withMessage("Title is required"),
-  check("priority")
-    .optional()
-    .isInt({ min: 1, max: 5 })
-    .withMessage("Priority must be a number between 1 and 5"),
+exports.update = (req, res) => {
+  const { id, title, priority } = req.body;
 
-  (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-
-    const { id, title, priority } = req.body;
-
-    const todo = todos.find((todo) => todo.id === id && !todo.deleted);
-    if (!todo) {
-      return res.status(404).send({ message: "Todo not found" });
-    }
-
-    todo.title = title || todo.title;
-    todo.priority = priority || todo.priority;
-    todo.updatedAt = Date.now();
-
-    res.send(todo);
-  },
-];
-
-exports.delete = [
-  check("id").notEmpty().withMessage("ID is required"),
-
-  (req, res) => {
-    const { id } = req.body;
-    const todo = todos.find((todo) => todo.id === id);
-
-    if (!todo) {
-      return res.status(404).send({ message: "Todo not found" });
-    }
-
-    todo.deleted = true;
-    todo.updatedAt = Date.now();
-
-    res.send({ message: "Todo deleted successfully" });
-  },
-];
-
-const privateKey = "salasona";
-
-exports.getToken = (req, res) => {
-  const { name } = req.body;
-  if (!name) {
-    return res.status(400).json({ message: "Nimi on kohustuslik" });
+  const todo = todos.find((todo) => todo.id === id && !todo.deleted);
+  if (!todo) {
+    return res.status(404).send({ message: "Todo not found" });
   }
 
-  const token = jwt.sign({ name }, privateKey, { expiresIn: "1h" });
-  res.json({ token });
+  todo.title = title || todo.title;
+  todo.priority = priority || todo.priority;
+  todo.updatedAt = Date.now();
+
+  res.send(todo);
 };
 
-exports.verifyToken = (req, res) => {
-  const { token } = req.body;
-  if (!token) {
-    return res.status(400).json({ message: "Token on kohustuslik" });
+exports.delete = (req, res) => {
+  const { id } = req.body;
+  const todo = todos.find((todo) => todo.id === id);
+
+  if (!todo) {
+    return res.status(404).send({ message: "Todo not found" });
   }
 
-  jwt.verify(token, privateKey, (err, decoded) => {
-    if (err) {
-      return res.status(401).json({ message: "Token on kehtetu või aegunud" });
-    }
-    res.json({ message: "Token on korrektne", decoded });
-  });
+  todo.deleted = true;
+  todo.updatedAt = Date.now();
+
+  res.send({ message: "Todo deleted successfully" });
 };

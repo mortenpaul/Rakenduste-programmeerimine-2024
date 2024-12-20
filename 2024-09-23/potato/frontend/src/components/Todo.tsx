@@ -11,50 +11,50 @@ type Todo = {
     deleted: boolean;
 };
 
-const Todo = () => {
-    const [todo, setTodo] = useState<Todo[]>([]);
+const Todos = () => {
+    const [todos, setTodos] = useState<Todo[]>([]);
 
-    const fetchTodo = async () => {
-        const response = await fetch("http://localhost:8080/todo");
+    const fetchTodos = async () => {
+        const response = await fetch("http://localhost:8080/todos");
         const data = await response.json();
 
-        setTodo(data);
+        setTodos(data);
     };
 
     const handleDelete = async (id: string) => {
-        await fetch("http://localhost:8080/todo", {
+        await fetch("http://localhost:8080/todos", {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({ id }),
         });
-        fetchTodo();
+        fetchTodos();
     };
 
     const handleEdit = async (todo: Todo) => {
         const newTitle = prompt("Enter a new title for the todo:", todo.title);
         if (!newTitle) return;
 
-        await fetch("http://localhost:8080/todo", {
+        await fetch("http://localhost:8080/todos", {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({ id: todo.id, title: newTitle }),
         });
-        fetchTodo();
+        fetchTodos();
     };
 
     useEffect(() => {
-        fetchTodo();
+        fetchTodos();
     }, []);
 
     return (
         <Box>
           <Typography variant="h3" sx={{ marginBottom: 2, fontWeight: 'bold' }}>Todos</Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2,marginBottom: 4 }}>
-            {todo.map((todo) => (
+            {todos.map((todo) => (
               <Card 
                 key={todo.id} 
                 sx={{ minWidth: 275, maxWidth: 300, padding: 2, boxShadow: 3, '&:hover': { boxShadow: 6 } }}
@@ -69,10 +69,10 @@ const Todo = () => {
                     Updated At: {todo.updatedAt ? new Date(todo.updatedAt).toLocaleString() : "Never updated"}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1, marginTop: 2 }}>
-                    <Button variant="contained" color="primary" onClick={() => handleEdit(todo)}>
+                    <Button variant="contained" color="primary" onClick={() => handleEdit(todo)} sx={{ background: "#e6d0d2" }}>
                       Edit
                     </Button>
-                    <Button variant="contained" color="primary" onClick={() => handleDelete(todo.id)}>
+                    <Button variant="contained" color="secondary" onClick={() => handleDelete(todo.id)} sx={{ background: "#bdb8b8" }}>
                       Delete
                     </Button>
                   </Box>
@@ -80,9 +80,9 @@ const Todo = () => {
               </Card>
             ))}
           </Box>
-          <SubmitTodo fetchTodos={fetchTodo} />
+          <SubmitTodo fetchTodos={fetchTodos} />
         </Box>
       );
 }
 
-export default Todo;
+export default Todos;
