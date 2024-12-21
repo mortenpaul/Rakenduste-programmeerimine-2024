@@ -1,10 +1,21 @@
+import { red } from '@mui/material/colors';
 import './App.css';
 import Cats from './components/Cats';
 import Todos from './components/Todo';
-import { Box } from '@mui/material';
+import { Box, createTheme, ThemeProvider } from '@mui/material';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: red[500],
+    },
+  },
+});
+
 
 function App() {
   return (
+    <ThemeProvider theme={theme}>
     <Box sx={{
       display: 'flex', 
       flexDirection: { xs: 'column', md: 'row' }, 
@@ -36,6 +47,7 @@ function App() {
         <Todos />
       </Box>
     </Box>
+    </ThemeProvider>
   );
 }
 

@@ -42,7 +42,7 @@ const SubmitCat = ({ fetchCats }: SubmitCatProps) => {
                 <Stack>
                     <TextField label="Cat name"
                     onChange={(event) => setName(event.target.value)}/>
-                    <Button variant="contained" type="submit" sx={{ background: "#5c6b73" }}>
+                    <Button variant="contained" type="submit" >
                         Add
                     </Button>
                 </Stack>

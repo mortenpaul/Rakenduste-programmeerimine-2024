@@ -69,10 +69,10 @@ const Todos = () => {
                     Updated At: {todo.updatedAt ? new Date(todo.updatedAt).toLocaleString() : "Never updated"}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1, marginTop: 2 }}>
-                    <Button variant="contained" color="primary" onClick={() => handleEdit(todo)} sx={{ background: "#e6d0d2" }}>
+                    <Button variant="contained" color="secondary" onClick={() => handleEdit(todo)}>
                       Edit
                     </Button>
-                    <Button variant="contained" color="secondary" onClick={() => handleDelete(todo.id)} sx={{ background: "#bdb8b8" }}>
+                    <Button variant="contained" color="primary" onClick={() => handleDelete(todo.id)}>
                       Delete
                     </Button>
                   </Box>

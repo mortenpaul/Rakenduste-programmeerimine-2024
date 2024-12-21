@@ -52,7 +52,7 @@ const SubmitTodo = ({ fetchTodos }: SubmitTodoProps) => {
                     value={priority}
                     onChange={(event) => setPriority(Number(event.target.value))}
                     />
-                    <Button variant="contained" type="submit" sx={{ background: "#5c6b73" }}>Add</Button>
+                    <Button variant="contained" type="submit">Add</Button>
                 </Stack>
             </form>
         </Box>

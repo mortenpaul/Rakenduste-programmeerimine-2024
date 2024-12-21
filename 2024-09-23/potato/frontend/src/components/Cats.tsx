@@ -67,10 +67,10 @@ const Cats = () => {
                     Updated At: {cat.updatedAt ? new Date(cat.updatedAt).toLocaleString() : "Never updated"}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: 1, marginTop: 2 }}>
-                    <Button variant="contained" onClick={() => handleEdit(cat)} sx={{ background: "#e6d0d2" }}>
+                    <Button variant="contained" color="secondary" onClick={() => handleEdit(cat)}>
                       Edit
                     </Button>
-                    <Button variant="contained" color="secondary" onClick={() => handleDelete(cat.id)} sx={{ background: "#bdb8b8" }}> 
+                    <Button variant="contained" color="primary" onClick={() => handleDelete(cat.id)}> 
                       Delete
                     </Button>
                   </Box>
