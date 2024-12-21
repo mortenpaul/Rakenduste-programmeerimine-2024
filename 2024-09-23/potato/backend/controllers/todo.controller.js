@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
 const todos = [
   {
@@ -65,4 +66,27 @@ exports.delete = (req, res) => {
   todo.updatedAt = Date.now();
 
   res.send({ message: "Todo deleted successfully" });
+};
+
+//JWT
+const privateKey = "salasona";
+exports.getToken = (req, res) => {
+  const { name } = req.body;
+  if (!name) {
+    return res.status(400).json({ message: "Nimi on kohustuslik" });
+  }
+  const token = jwt.sign({ name }, privateKey, { expiresIn: "1h" });
+  res.json({ token });
+};
+exports.verifyToken = (req, res) => {
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ message: "Token on kohustuslik" });
+  }
+  jwt.verify(token, privateKey, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ message: "Token on kehtetu või aegunud" });
+    }
+    res.json({ message: "Token on korrektne", decoded });
+  });
 };
